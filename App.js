@@ -1,97 +1,79 @@
-import { StatusBar } from 'expo-status-bar'
-import React, { useEffect, useState } from 'react'
-import { StyleSheet, Text, View, ActivityIndicator } from 'react-native'
-import * as Location from 'expo-location'
+import React from 'react'
+import { NavigationContainer } from '@react-navigation/native'
+import { createDrawerNavigator } from '@react-navigation/drawer'
+import { createStackNavigator } from '@react-navigation/stack'
+import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs'
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs'
 
-import WeatherInfo from './src/components/WeatherInfo'
-import UtilsPicker from './src/components/UtilsPicker'
-import ReloadIcon from './src/components/ReloadIcon'
-import WeatherDetails from './src/components/WeatherDetails'
-import { colors } from './src/utils/index'
+import Screen1 from './src/views/Screen1'
+import Screen2 from './src/views/Screen2'
+import Feed from './src/views/Feed'
+import Tab1 from './src/tabs/Tab1'
+import Tab2 from './src/tabs/Tab2'
+import Tab3 from './src/tabs/Tab3'
 
-const WEATHER_API_KEY = process.env.WEATHER_API_KEY
-const BASE_WEATHER_URL = 'https://api.openweathermap.org/data/2.5/weather?'
+const Drawer = createDrawerNavigator()
+const Stack = createStackNavigator()
+const MaterialBottomTabs = createMaterialBottomTabNavigator()
+const MaterialTopTabs = createMaterialTopTabNavigator()
 
 export default function App() {
-  const [errorMessage, setErrorMessage] = useState(null)
-  const [currentWeather, setCurrentWeather] = useState(null)
-  const [unitsSystem, setUnitsSystem] = useState('metric')
+  const createHomeStack = () => (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="Feed"
+        component={Feed}
+        options={{
+          title: 'My Feed',
+          headerStyle: { backgroundColor: 'purple' },
+          headerTintColor: 'white',
+        }}
+      />
+      <Stack.Screen
+        name="Detail"
+        component={Screen2}
+        options={{
+          title: 'Detail Screen',
+          headerStyle: { backgroundColor: 'purple' },
+          headerTintColor: 'white',
+        }}
+      />
+      <Stack.Screen name="Bottom Tabs" children={createBottomTabs} />
+      <Stack.Screen name="Top Tabs" children={createTopTabs} />
+    </Stack.Navigator>
+  )
 
-  useEffect(() => {
-    load()
-  }, [unitsSystem])
-
-  async function load() {
-    setCurrentWeather(null)
-    setErrorMessage(null)
-
-    try {
-      let { status } = await Location.requestPermissionsAsync()
-
-      if (status !== 'granted') {
-        setErrorMessage('Access to location is needed to run the app')
-        return
-      }
-      const location = await Location.getCurrentPositionAsync()
-      const { latitude, longitude } = location.coords
-      const weatherURL = `${BASE_WEATHER_URL}lat=${latitude}&lon=${longitude}&units=${unitsSystem}&appid=${WEATHER_API_KEY}`
-      const response = await fetch(weatherURL)
-      const result = await response.json()
-
-      if (response.ok) {
-        setCurrentWeather(result)
-      } else {
-        setErrorMessage(result.message)
-      }
-    } catch (error) {
-      setErrorMessage(error.message)
-    }
-  }
-
-  if (currentWeather) {
+  const createTopTabs = () => {
     return (
-      <View style={styles.container}>
-        <StatusBar style="auto" />
-        <View style={styles.main}>
-          <UtilsPicker
-            unitsSystem={unitsSystem}
-            setUnitsSystem={setUnitsSystem}
-          />
-          <ReloadIcon load={load} />
-          <WeatherInfo currentWeather={currentWeather} />
-        </View>
-        <WeatherDetails
-          currentWeather={currentWeather}
-          unitsSystem={unitsSystem}
+      <MaterialTopTabs.Navigator>
+        <MaterialTopTabs.Screen
+          name="Tab 1"
+          component={Tab1}
+          options={{ title: 'Hello' }}
         />
-      </View>
-    )
-  } else if (errorMessage) {
-    return (
-      <View style={styles.container}>
-        <ReloadIcon load={load} />
-        <Text style={{ textAlign: 'center' }}>{errorMessage}</Text>
-        <StatusBar style="auto" />
-      </View>
-    )
-  } else {
-    return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" color={colors.PRIMARY_COLOR} />
-        <StatusBar style="auto" />
-      </View>
+        <MaterialTopTabs.Screen name="Tab 2" component={Tab2} />
+        <MaterialTopTabs.Screen name="Tab 3" component={Tab3} />
+      </MaterialTopTabs.Navigator>
     )
   }
-}
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    justifyContent: 'center',
-  },
-  main: {
-    justifyContent: 'center',
-    flex: 1,
-  },
-})
+  const createBottomTabs = () => {
+    return (
+      <MaterialBottomTabs.Navigator>
+        <MaterialBottomTabs.Screen name="Tab 1" component={Tab1} />
+        <MaterialBottomTabs.Screen name="Tab 2" component={Tab2} />
+        <MaterialBottomTabs.Screen name="Tab 3" component={Tab3} />
+      </MaterialBottomTabs.Navigator>
+    )
+  }
+
+  return (
+    <NavigationContainer>
+      <Drawer.Navigator>
+        <Drawer.Screen name="Home" children={createHomeStack} />
+        <Drawer.Screen name="Contacts" component={Screen1} />
+        <Drawer.Screen name="Favourites" component={Screen2} />
+      </Drawer.Navigator>
+    </NavigationContainer>
+  )
+}
