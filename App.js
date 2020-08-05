@@ -1,9 +1,18 @@
 import React from 'react'
-import { NavigationContainer } from '@react-navigation/native'
+import {
+  NavigationContainer,
+  DefaultTheme,
+  DarkTheme,
+} from '@react-navigation/native'
 import { createDrawerNavigator } from '@react-navigation/drawer'
 import { createStackNavigator } from '@react-navigation/stack'
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs'
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs'
+import {
+  Appearance,
+  useColorScheme,
+  AppearanceProvider,
+} from 'react-native-appearance'
 
 import Screen1 from './src/views/Screen1'
 import Screen2 from './src/views/Screen2'
@@ -18,6 +27,19 @@ const MaterialBottomTabs = createMaterialBottomTabNavigator()
 const MaterialTopTabs = createMaterialTopTabNavigator()
 
 export default function App() {
+  const colorScheme = useColorScheme()
+  const MyTheme = {
+    dark: false,
+    colors: {
+      primary: 'black',
+      background: '#cccccc',
+      card: 'red',
+      text: 'white',
+      border: 'green',
+      notification: 'rgb(255, 69, 58)',
+    },
+  }
+
   const createHomeStack = () => (
     <Stack.Navigator>
       <Stack.Screen
@@ -25,8 +47,6 @@ export default function App() {
         component={Feed}
         options={{
           title: 'My Feed',
-          headerStyle: { backgroundColor: 'purple' },
-          headerTintColor: 'white',
         }}
       />
       <Stack.Screen
@@ -34,8 +54,6 @@ export default function App() {
         component={Screen2}
         options={{
           title: 'Detail Screen',
-          headerStyle: { backgroundColor: 'purple' },
-          headerTintColor: 'white',
         }}
       />
       <Stack.Screen name="Bottom Tabs" children={createBottomTabs} />
@@ -68,12 +86,14 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
-      <Drawer.Navigator>
-        <Drawer.Screen name="Home" children={createHomeStack} />
-        <Drawer.Screen name="Contacts" component={Screen1} />
-        <Drawer.Screen name="Favourites" component={Screen2} />
-      </Drawer.Navigator>
-    </NavigationContainer>
+    <AppearanceProvider>
+      <NavigationContainer theme={colorScheme === 'dark' ? DarkTheme : MyTheme}>
+        <Drawer.Navigator>
+          <Drawer.Screen name="Home" children={createHomeStack} />
+          <Drawer.Screen name="Contacts" component={Screen1} />
+          <Drawer.Screen name="Favourites" component={Screen2} />
+        </Drawer.Navigator>
+      </NavigationContainer>
+    </AppearanceProvider>
   )
 }

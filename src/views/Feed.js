@@ -1,14 +1,21 @@
 import React from 'react'
 import { View, Text, Button, StyleSheet } from 'react-native'
+import { useNavigation, useRoute } from '@react-navigation/native'
 
-export default function Feed(props) {
+export default function Feed() {
+  const navigation = useNavigation()
+  const route = useRoute()
+  const detailResult = route.params
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Navigation Drawer</Text>
+      <Text style={styles.title}>
+        {detailResult ? detailResult.data : 'Navigation Drawer'}
+      </Text>
       <Button
         title="Press me"
         onPress={() =>
-          props.navigation.navigate('Detail', {
+          navigation.navigate('Detail', {
             screenName: 'My Detail Screen',
           })
         }
